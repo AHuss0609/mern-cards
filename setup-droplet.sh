@@ -47,10 +47,13 @@ ask_secret() { local __var=$1 __prompt=$2 __reply; read -rsp "$__prompt" __reply
 [ "$(id -u)" -eq 0 ] || die "Run this as root (in the DigitalOcean console you are root already)."
 cd /   # so commands run as the deploy user don't start in root's private home folder
 
-# Run a command as the deploy user, with nvm's Node on the PATH. (nvm doesn't
-# work under "set -u", so the inner shell doesn't use it: chain with &&.)
+# Run a command as the deploy user, with nvm's Node on the PATH. It starts
+# from a clean environment so root's own settings (an NVM_DIR from an earlier
+# nvm install, for example) can't leak in. (nvm doesn't work under "set -u",
+# so the inner shell doesn't use it: chain with &&.)
 as_deploy() {
-  runuser -u "$DEPLOY_USER" -- env HOME="/home/$DEPLOY_USER" GIT_TERMINAL_PROMPT=0 bash -c \
+  runuser -u "$DEPLOY_USER" -- env -i HOME="/home/$DEPLOY_USER" USER="$DEPLOY_USER" LOGNAME="$DEPLOY_USER" \
+    PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin LANG=C.UTF-8 GIT_TERMINAL_PROMPT=0 bash -c \
     "cd ~; if [ -s ~/.nvm/nvm.sh ]; then . ~/.nvm/nvm.sh; nvm use --silent $NODE_MAJOR >/dev/null 2>&1; fi; $1"
 }
 
@@ -126,7 +129,7 @@ install -d -o "$DEPLOY_USER" -g "$DEPLOY_USER" "$APP_DIR" "$SITE_DIR"
 ok "user ready; $APP_DIR and $SITE_DIR belong to $DEPLOY_USER"
 
 step "Installing Node.js $NODE_MAJOR with nvm"
-as_deploy "[ -s ~/.nvm/nvm.sh ] || { curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh -o /tmp/nvm-install.sh && bash /tmp/nvm-install.sh >/dev/null; }"
+as_deploy "[ -s ~/.nvm/nvm.sh ] || { curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh -o ~/nvm-install.sh && bash ~/nvm-install.sh >/dev/null; }"
 as_deploy ". ~/.nvm/nvm.sh && nvm install $NODE_MAJOR >/dev/null && nvm alias default $NODE_MAJOR >/dev/null"
 ok "node $(as_deploy 'node --version')"
 
@@ -220,7 +223,8 @@ fi
 # --- 5. The frontend -------------------------------------------------------
 step "Building the React frontend (this takes a few minutes)"
 as_deploy "cd $SRC/cards-frontend && CYPRESS_INSTALL_BINARY=0 npm ci --no-audit --no-fund --loglevel=error"
-as_deploy "cd $SRC/cards-frontend && NODE_OPTIONS=--max-old-space-size=1536 npm run build >/dev/null"
+as_deploy "cd $SRC/cards-frontend && NODE_OPTIONS=--max-old-space-size=1536 npm run build > ~/frontend-build.log 2>&1" \
+  || { tail -n 40 "/home/$DEPLOY_USER/frontend-build.log"; die "the frontend build failed; the end of its log is above"; }
 [ -f "$SRC/cards-frontend/dist/index.html" ] || die "the build did not produce dist/index.html"
 as_deploy "rsync -a --delete $SRC/cards-frontend/dist/ $SITE_DIR/"
 ok "frontend copied to $SITE_DIR"
