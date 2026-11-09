@@ -3,6 +3,7 @@
 export interface Session {
   token: string;
   id: string;
+  login?: string;
   firstName: string;
   lastName: string;
 }

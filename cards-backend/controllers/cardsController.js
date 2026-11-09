@@ -1,4 +1,4 @@
-const { Card } = require('../models');
+const { Card, User } = require('../models');
 
 // --- Helpers --------------------------------------------------------------
 
@@ -104,6 +104,12 @@ exports.createCard = async (req, res, next) => {
       : { card: fields.card };
 
     const card = await Card.create({ ...newCard, userId });
+
+    // Account deletion may have started while this request was creating the card.
+    if (!(await User.exists({ _id: userId }))) {
+      await card.deleteOne();
+      return res.status(401).json({ error: 'Account no longer exists' });
+    }
 
     res.status(201).location(`/api/cards/${card._id}`).json(card);
   } catch (err) {

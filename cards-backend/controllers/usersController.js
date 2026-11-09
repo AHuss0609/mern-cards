@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, Card } = require('../models');
 const { createToken } = require('../middleware/auth');
 
 // POST /api/users
@@ -46,6 +46,23 @@ exports.getUser = async (req, res, next) => {
     }
 
     res.status(200).json(user);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// DELETE /api/users/:userId
+exports.deleteUser = async (req, res, next) => {
+  try {
+    const { userId } = req;
+    if (await User.exists({ _id: userId, login: 'johnaedo' })) {
+      return res.status(403).json({ error: 'The course demo account cannot be deleted' });
+    }
+
+    // Revoke access before removing cards. Both deletes can be safely retried.
+    await User.deleteOne({ _id: userId });
+    await Card.deleteMany({ userId });
+    res.status(204).end();
   } catch (err) {
     next(err);
   }

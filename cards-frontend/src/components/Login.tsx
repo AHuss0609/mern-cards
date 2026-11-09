@@ -7,6 +7,7 @@ function startSession({ token, user }: AuthResponse): void {
   saveSession({
     token,
     id: user._id,
+    login: user.login,
     firstName: user.firstName,
     lastName: user.lastName,
   });

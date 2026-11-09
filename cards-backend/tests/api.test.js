@@ -177,6 +177,46 @@ describe('Protected routes', () => {
   });
 });
 
+describe('Account deletion', () => {
+  test('deletes the owner and their cards, invalidates the session, and allows a retry', async () => {
+    const { token, user } = await register('delete-me');
+    const other = await register('keep-me');
+    await Card.create({ ...sampleCard, userId: String(user._id) });
+    await Card.create({ ...sampleCard, userId: String(other.user._id) });
+    const account = `/api/users/${user._id}`;
+
+    await request(app).delete(account).set(auth(token)).expect(204);
+    expect(await User.exists({ _id: user._id })).toBeNull();
+    expect(await Card.countDocuments({ userId: user._id })).toBe(0);
+    expect(await Card.countDocuments({ userId: other.user._id })).toBe(1);
+    await request(app).get(`${account}/cards`).set(auth(token)).expect(401);
+    await request(app).post(`${account}/cards`).set(auth(token)).send(sampleCard).expect(401);
+    await request(app).post('/api/auth/login').send({ login: 'delete-me', password: 'secret123' }).expect(401);
+    await request(app).delete(account).set(auth(token)).expect(204);
+
+    const replacement = await register('delete-me');
+    expect(replacement.user._id).not.toBe(user._id);
+    await request(app).get(`/api/users/${replacement.user._id}`).set(auth(token)).expect(403);
+  });
+
+  test('rejects unauthenticated and cross-account deletion', async () => {
+    const alice = await register('alice');
+    const bob = await register('bob');
+    const account = `/api/users/${bob.user._id}`;
+
+    await request(app).delete(account).expect(401);
+    await request(app).delete(account).set(auth(alice.token)).expect(403);
+    expect(await User.exists({ _id: bob.user._id })).not.toBeNull();
+  });
+
+  test('keeps the required course demo account', async () => {
+    const { token, user } = await register('johnaedo');
+
+    await request(app).delete(`/api/users/${user._id}`).set(auth(token)).expect(403);
+    expect(await User.exists({ _id: user._id })).not.toBeNull();
+  });
+});
+
 describe('Cards', () => {
   test('POST /api/users/:userId/cards creates a card', async () => {
     const { token, user } = await register();

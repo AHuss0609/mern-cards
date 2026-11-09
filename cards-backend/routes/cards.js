@@ -1,7 +1,7 @@
 const express = require('express');
 const cards = require('../controllers/cardsController');
 const validateObjectId = require('../middleware/validateObjectId');
-const { requireAuth } = require('../middleware/auth');
+const { requireAccount, requireToken } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ const router = express.Router();
 router.param('id', validateObjectId);
 
 // Every card route needs a logged-in user
-router.use(requireAuth);
+router.use(requireToken, requireAccount);
 
 // Listing and creating cards happen under their owner, at /api/users/:userId/cards.
 // Once a card exists it has its own identity, so single-card operations use

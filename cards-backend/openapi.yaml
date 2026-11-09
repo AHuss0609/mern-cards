@@ -120,6 +120,22 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+    delete:
+      tags: [Users]
+      summary: Delete your own account and all of its cards
+      description: The course demo account cannot be deleted.
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Account and cards deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /api/users/{userId}/cards:
     parameters:
       - $ref: '#/components/parameters/UserId'
