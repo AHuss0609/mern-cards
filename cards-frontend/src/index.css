@@ -1,0 +1,44 @@
+:root {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #212529;
+  background-color: #f8f9fa;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure focus states meet WCAG accessibility requirements */
+:focus-visible {
+  outline: 3px solid #0d6efd !important;
+  outline-offset: 2px !important;
+}
+
+.btn:focus-visible, .form-control:focus-visible {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.35) !important;
+}
+
+.card {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+.badge-custom {
+  font-size: 0.85rem;
+  padding: 0.4em 0.75em;
+}

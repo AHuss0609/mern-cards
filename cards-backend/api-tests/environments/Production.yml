@@ -1,0 +1,9 @@
+# The live site from Step 13
+name: Production
+variables:
+  - name: baseURL
+    value: https://cards.lampali.lol
+  - name: login
+    value: johnaedo
+  - name: password
+    value: ucf123!

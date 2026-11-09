@@ -1,0 +1,21 @@
+{
+  "validUser": {
+    "login": "johnaedo",
+    "password": "ucf123!",
+    "firstName": "John",
+    "lastName": "Aedo",
+    "id": "60c72b2f9b1d8b2bad000001",
+    "token": "test-token"
+  },
+  "invalidUser": {
+    "login": "nonexistentuser",
+    "password": "wrongpassword123"
+  },
+  "newUser": {
+    "firstName": "Alice",
+    "lastName": "Wonderland",
+    "login": "alicew",
+    "email": "alice@example.com",
+    "password": "Password123!"
+  }
+}

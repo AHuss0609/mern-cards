@@ -1,0 +1,9 @@
+.app-container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.brand-gradient {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}

@@ -1,0 +1,10 @@
+services:
+  frontend:
+    build: .
+    container_name: frontend-app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped

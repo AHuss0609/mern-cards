@@ -1,0 +1,85 @@
+{
+  "newCard": {
+    "playerName": "Michael Jordan",
+    "teamName": "Chicago Bulls",
+    "cardValue": 45000,
+    "publisher": "Fleer"
+  },
+  "mockCardList": [
+    {
+      "_id": "card_01",
+      "playerName": "Bugs Bunny",
+      "teamName": "Tune Squad",
+      "cardValue": 15000,
+      "publisher": "Warner Collectibles",
+      "userId": "60c72b2f9b1d8b2bad000001"
+    },
+    {
+      "_id": "card_02",
+      "playerName": "Daffy Duck",
+      "teamName": "Duck Dodgers",
+      "cardValue": 12500,
+      "publisher": "Warner Collectibles",
+      "userId": "60c72b2f9b1d8b2bad000001"
+    },
+    {
+      "_id": "card_03",
+      "playerName": "Porky Pig",
+      "teamName": "ACME All-Stars",
+      "cardValue": 8500,
+      "publisher": "Fleer",
+      "userId": "60c72b2f9b1d8b2bad000001"
+    },
+    {
+      "_id": "card_04",
+      "playerName": "Yosemite Sam",
+      "teamName": "Wild West Legends",
+      "cardValue": 9200,
+      "publisher": "Donruss",
+      "userId": "60c72b2f9b1d8b2bad000001"
+    },
+    {
+      "_id": "card_05",
+      "playerName": "Elmer Fudd",
+      "teamName": "Hunter Special",
+      "cardValue": 7800,
+      "publisher": "Topps",
+      "userId": "60c72b2f9b1d8b2bad000001"
+    },
+    {
+      "_id": "card_06",
+      "playerName": "Tweety Bird",
+      "teamName": "Sky High",
+      "cardValue": 11000,
+      "publisher": "Upper Deck",
+      "userId": "60c72b2f9b1d8b2bad000001"
+    },
+    {
+      "_id": "card_07",
+      "playerName": "Sylvester the Cat",
+      "teamName": "Alley Cats",
+      "cardValue": 6900,
+      "publisher": "Fleer",
+      "userId": "60c72b2f9b1d8b2bad000001"
+    },
+    {
+      "_id": "card_08",
+      "playerName": "Tasmanian Devil",
+      "teamName": "Tazmanian Whirlwind",
+      "cardValue": 18500,
+      "publisher": "Panini",
+      "userId": "60c72b2f9b1d8b2bad000001"
+    }
+  ],
+  "singleSearchResult": [
+    {
+      "_id": "card_01",
+      "playerName": "Bugs Bunny",
+      "teamName": "Tune Squad",
+      "cardValue": 15000,
+      "publisher": "Warner Collectibles",
+      "userId": "60c72b2f9b1d8b2bad000001"
+    }
+  ],
+  "emptyResult": []
+}

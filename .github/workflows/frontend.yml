@@ -1,0 +1,80 @@
+name: CI/CD Pipeline
+
+# This repository holds both halves of the app. This workflow runs only when
+# something in cards-frontend/ (or this file) changes.
+on:
+  push:
+    branches: [main, master]
+    paths: ['cards-frontend/**', '.github/workflows/frontend.yml']
+  pull_request:
+    branches: [main, master]
+    paths: ['cards-frontend/**', '.github/workflows/frontend.yml']
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    # Every "run:" step below runs inside the frontend folder
+    defaults:
+      run:
+        working-directory: cards-frontend
+
+    # Repository secrets (Settings > Secrets and variables > Actions), the
+    # same three as the backend's deploy workflow:
+    #   SSH_HOST         the droplet's IP address
+    #   SSH_USER         the user to log in as (deploy)
+    #   SSH_PRIVATE_KEY  a private key whose public half is in that user's
+    #                    ~/.ssh/authorized_keys on the droplet
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      # The folder Apache serves the site from (see
+      # cards-backend/deploy/apache-cards.conf)
+      SITE_DIR: /var/www/cards
+
+    steps:
+      # --- Continuous integration: runs for every push and pull request ----
+      # A change that doesn't lint or build stops here and never ships.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: cards-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          # The Cypress test runner isn't needed to build the site
+          CYPRESS_INSTALL_BINARY: 0
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check and build
+        run: npm run build
+
+      # --- Continuous deployment: only for pushes, not pull requests -------
+      # The site is built here on GitHub; only the finished files in dist/
+      # are copied to the droplet.
+      - name: Explain a skipped deploy
+        if: github.event_name == 'push' && env.SSH_HOST == ''
+        run: echo "::warning::Deploy skipped. Add the SSH_HOST, SSH_USER, and SSH_PRIVATE_KEY repository secrets to deploy."
+
+      - name: Set up SSH
+        if: github.event_name == 'push' && env.SSH_HOST != ''
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      # --delete removes files left over from older builds
+      - name: Copy the build to the droplet
+        if: github.event_name == 'push' && env.SSH_HOST != ''
+        run: rsync -az --delete --no-owner --no-group -e "ssh -i ~/.ssh/deploy_key" dist/ "$SSH_USER@$SSH_HOST:$SITE_DIR/"
